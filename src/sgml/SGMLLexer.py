@@ -4,7 +4,7 @@ This module provides a transparent interface allowing the use of
 alternate lexical analyzers without modifying higher levels of SGML
 or HTML support.
 """
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 
 #  These constants are not used in this module, but are provided to
 #  allow other modules to know about the concrete syntax we support.
@@ -546,9 +546,6 @@ class SGMLLexer(SGMLLexerBase):
             elif attrvalue[:1] == LITA == attrvalue[-1:] or \
                  attrvalue[:1] == LIT == attrvalue[-1:]:
                 attrvalue = attrvalue[1:-1]
-                if '&' in attrvalue:
-                    from .SGMLReplacer import replace
-                    attrvalue = replace(attrvalue, self.entitydefs)
             attrs[self._normfunc(attrname)] = attrvalue
             k = match.end(0)
         # close the start-tag
