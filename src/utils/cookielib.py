@@ -295,8 +295,8 @@ class Cookie:
 
 
 import re
-_name_rx = re.compile(r"\s*(?P<value>[A-Z][-A-Z0-9]*)", re.IGNORECASE)
-_value_rx = re.compile(r"\s*=\s*(?P<value>[^;,\s]+)\s*")
+_name_rx = re.compile(r"\s*(?P<value>[_A-Z][-_A-Z0-9]*)", re.IGNORECASE)
+_value_rx = re.compile(r"\s*=\s*(?P<value>[^;,\s]*)\s*")
 # RFC 850 date format...
 _date_rx = re.compile(
     r"""\s*=\s*(\"|'|)\s*
@@ -377,7 +377,7 @@ def parse_cookie(s):
         minparts = 3
         hostparts = string.split(domain, '.')
         del hostparts[0]
-        if hostparts[-1] in SPECIAL_DOMAINS:
+        if is_special_domain(hostparts[-1]):
             minparts = 2
         if len(hostparts) < minparts:
             raise ValueError, "too few components in domain specification"
@@ -422,14 +422,6 @@ def _month_to_num(month):
     m = string.lower(month)
     return _months[m]
 
-def _2dyear_to_4dyear(yy):
-    # what do we do with those darn two-digit years?
-    # always assuming 19yy seems a little dangerous
-    if (yy < 70):
-	return yy + 2000
-    else:
-	return yy + 1900
-
 def _parse_date(str):
     """Parses time in rfc850, rfc1123, and raw seconds formats. Returns
     seconds since the epoch corrected for timezone.
@@ -445,13 +437,13 @@ def _parse_date(str):
     if ',' in str:
 	noday = string.strip(str[string.find(str, ',')+1:])
 	if '-' in str:
-	    # Format...... Weekday, 00-Mon-00 00:00:00 GMT (rfc850)
+	    # Format...... Weekday, 00-Mon-2000 00:00:00 GMT (rfc850)
 	    mday = string.atoi(noday[0:2])
 	    mon = _month_to_num(noday[3:6])
-	    year = _2dyear_to_4dyear(string.atoi(noday[7:9]))
-	    hour = string.atoi(noday[10:12])
-	    min = string.atoi(noday[13:15])
-	    sec = string.atoi(noday[16:18])
+	    year = string.atoi(noday[7:11])
+	    hour = string.atoi(noday[12:14])
+	    min = string.atoi(noday[15:17])
+	    sec = string.atoi(noday[18:20])
 	else:
 	    # Format...... Wkd, 00 Mon 0000 00:00:00 GMT (rfc1123)
 	    mday = string.atoi(noday[0:2])
